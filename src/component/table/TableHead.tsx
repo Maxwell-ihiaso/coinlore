@@ -1,5 +1,13 @@
 import { CoinDataProps, HeadCell, Order } from '@/interface';
-import { Box, Checkbox, TableCell, TableHead, TableRow, TableSortLabel } from '@mui/material';
+import {
+  Box,
+  Checkbox,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+  useTheme,
+} from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 
 export const headCells: readonly HeadCell[] = [
@@ -58,6 +66,7 @@ interface EnhancedTableProps {
 
 export default function EnhancedTableHead(props: EnhancedTableProps) {
   const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+  const theme = useTheme();
   const createSortHandler =
     (property: keyof CoinDataProps) => (event: React.MouseEvent<unknown>) => {
       onRequestSort(event, property);
@@ -79,8 +88,9 @@ export default function EnhancedTableHead(props: EnhancedTableProps) {
             sx={{
               cursor: 'pointer',
               borderRadius: '14px',
-              ['&:hover']: { bgcolor: 'green' },
-              ['&:focus']: { bgcolor: 'green' },
+              ['&.MuiChecked']: {
+                accentColor: 'common.white',
+              },
             }}
           />
         </TableCell>
