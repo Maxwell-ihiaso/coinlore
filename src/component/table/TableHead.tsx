@@ -1,40 +1,19 @@
-import { CoinDataProps } from '@/interface';
+import { CoinDataProps, HeadCell, Order } from '@/interface';
 import { Box, Checkbox, TableCell, TableHead, TableRow, TableSortLabel } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
-
-type Order = 'asc' | 'desc';
-
-interface HeadCell {
-  disablePadding: boolean;
-  id: keyof CoinDataProps;
-  label: string;
-  align: 'left' | 'right' | 'center';
-}
 
 export const headCells: readonly HeadCell[] = [
   {
     id: 'id',
     align: 'right',
     disablePadding: false,
-    label: 'id',
-  },
-  {
-    id: 'symbol',
-    align: 'right',
-    disablePadding: false,
-    label: 'Symbol',
+    label: 'ID',
   },
   {
     id: 'name',
     align: 'right',
     disablePadding: false,
     label: 'Name',
-  },
-  {
-    id: 'nameid',
-    align: 'right',
-    disablePadding: false,
-    label: 'Name Id',
   },
   {
     id: 'rank',
@@ -46,55 +25,25 @@ export const headCells: readonly HeadCell[] = [
     id: 'price_usd',
     align: 'right',
     disablePadding: false,
-    label: 'USD ($)',
-  },
-  {
-    id: 'price_btc',
-    align: 'right',
-    disablePadding: false,
-    label: 'BTC',
-  },
-  {
-    id: 'market_cap_usd',
-    align: 'right',
-    disablePadding: false,
-    label: 'Market Cap ($)',
+    label: 'Price (USD)',
   },
   {
     id: 'percent_change_24h',
     align: 'right',
     disablePadding: false,
-    label: 'Change in 24h',
+    label: 'Percent Change (24h)',
   },
   {
-    id: 'percent_change_1h',
+    id: 'price_btc',
     align: 'right',
     disablePadding: false,
-    label: 'Change in 1h',
+    label: 'Price (BTC)',
   },
   {
-    id: 'percent_change_7d',
+    id: 'market_cap_usd',
     align: 'right',
     disablePadding: false,
-    label: 'Change in 7d',
-  },
-  {
-    id: 'csupply',
-    align: 'right',
-    disablePadding: false,
-    label: 'C Supply',
-  },
-  {
-    id: 'tsupply',
-    align: 'right',
-    disablePadding: false,
-    label: 'T Supply',
-  },
-  {
-    id: 'msupply',
-    align: 'right',
-    disablePadding: false,
-    label: 'M Supply',
+    label: 'Market Cap (USD)',
   },
 ];
 

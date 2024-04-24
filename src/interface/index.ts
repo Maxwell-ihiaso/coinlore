@@ -26,3 +26,14 @@ export interface CoinInfoProps {
   coins_num: number;
   time: number;
 }
+
+
+
+export type Order = 'asc' | 'desc';
+
+export interface HeadCell {
+  disablePadding: boolean;
+  id: keyof CoinDataProps;
+  label: string;
+  align: 'left' | 'right' | 'center';
+}

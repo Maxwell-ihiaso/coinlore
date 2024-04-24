@@ -1,4 +1,6 @@
 'use client';
+import { useCoinDataContext } from '@/context/coinDataContext';
+import { CoinDataProps } from '@/interface';
 import theme from '@/theme';
 import { Add, CloudDownloadOutlined, Delete, FilterList, Search } from '@mui/icons-material';
 import {
@@ -8,14 +10,35 @@ import {
   Stack,
   Typography,
   alpha,
+  debounce,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 const DashboardHeader = () => {
+  const [userInput, setUserInput] = useState('');
   const theme = useTheme();
   const mdDown = useMediaQuery(theme.breakpoints.down('sm'));
+  const { setFilteredCoinData, coinData } = useCoinDataContext();
+
+  const linearSearch = (coinsData: CoinDataProps[], query: string) => {
+    return coinsData.filter(
+      (_coin) =>
+        _coin?.name?.toLowerCase().includes(query?.toLowerCase()) ||
+        _coin?.id?.toLowerCase().includes(query?.toLowerCase())
+    );
+  };
+
+  const debounceSetUserInput = debounce(setUserInput, 500);
+
+  useEffect(() => {
+    if (userInput) {
+      const _filteredCoinData = linearSearch(coinData, userInput);
+      setFilteredCoinData(_filteredCoinData);
+    }
+  }, [userInput]);
+
   return (
     <Stack
       direction={mdDown ? 'column' : 'row'}
@@ -40,6 +63,7 @@ const DashboardHeader = () => {
 
             outline: 'none',
           }}
+          onChange={(e) => debounceSetUserInput(e.target.value)}
           startAdornment={
             <InputAdornment position="start">
               <Search fontSize="small" />

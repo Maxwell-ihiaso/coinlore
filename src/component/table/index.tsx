@@ -9,31 +9,18 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
 import EnhancedTableToolbar from './TableToolbar';
 import EnhancedTableHead, { headCells } from './TableHead';
-import axios from 'axios';
 import getComparator from '@/utils/getComparator';
-import { CoinDataApiResponse, CoinDataProps, CoinInfoProps } from '@/interface';
+import { CoinDataApiResponse, CoinDataProps } from '@/interface';
 import convertNumberToReadableString from '@/utils/convertNumToReadableString';
-import { useFetch } from '@/hooks/useFetch';
 import { TableRowsLoader } from '../loader/TableLoader';
 import FullWidhtLoader from '../loader/FullWidhtLoader';
+import stableSort from '@/utils/stableSort';
+import { useCoinDataContext } from '@/context/coinDataContext';
+import { useFetch } from '@/hooks/useFetch';
 
 export type Order = 'asc' | 'desc';
-
-function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) {
-  const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
-}
 
 export default function EnhancedTable() {
   const [order, setOrder] = React.useState<Order>('asc');
@@ -43,14 +30,11 @@ export default function EnhancedTable() {
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  const { data, error, isError, isFetching, isLoading, refetch } = useFetch<CoinDataApiResponse>(
+  const { filteredCoinData, setData } = useCoinDataContext();
+
+  const { data, isFetching, isLoading } = useFetch<CoinDataApiResponse>(
     `https://api.coinlore.net/api/tickers/`
   );
-
-  const [coinData, setCoinData] = React.useState<CoinDataProps[]>([]);
-  const [coinInfo, setCoinInfo] = React.useState<CoinInfoProps>({} as CoinInfoProps);
-
-  console.log({ coinData, coinInfo });
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof CoinDataProps) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -60,7 +44,7 @@ export default function EnhancedTable() {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelected = coinData?.map((n) => n.id);
+      const newSelected = filteredCoinData?.map((n) => n.id);
       setSelected(newSelected);
       return;
     }
@@ -102,23 +86,20 @@ export default function EnhancedTable() {
   const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - coinData?.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredCoinData?.length) : 0;
 
   const visibleRows = React.useMemo(
     () =>
-      stableSort(coinData, getComparator(order, orderBy)).slice(
+      stableSort(filteredCoinData, getComparator(order, orderBy))?.slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
       ),
-    [coinData, order, orderBy, page, rowsPerPage]
+    [filteredCoinData, order, orderBy, page, rowsPerPage]
   );
-
-  console.log({ visibleRows });
 
   React.useEffect(() => {
     if (data && data?.data.length > 0) {
-      setCoinData(data?.data);
-      setCoinInfo(data?.info);
+      setData?.(data);
     }
   }, [data]);
 
@@ -142,7 +123,7 @@ export default function EnhancedTable() {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={coinData?.length}
+              rowCount={filteredCoinData?.length}
             />
             <TableBody>
               {isLoading ? (
@@ -150,7 +131,7 @@ export default function EnhancedTable() {
               ) : isFetching && !isLoading ? (
                 <TableRowsLoader rowsNum={10} colNum={headCells.length + 1} />
               ) : (
-                visibleRows.map((row, index) => {
+                visibleRows?.map((row, index) => {
                   const isItemSelected = isSelected(row.id);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -183,37 +164,19 @@ export default function EnhancedTable() {
                       >
                         {row.id}
                       </TableCell>
-                      <TableCell align="right">{row.symbol}</TableCell>
                       <TableCell align="right">{row.name}</TableCell>
-                      <TableCell align="right">{row.nameid}</TableCell>
                       <TableCell align="right">{convertNumberToReadableString(row.rank)}</TableCell>
                       <TableCell align="right">
                         {convertNumberToReadableString(row.price_usd)}
+                      </TableCell>
+                      <TableCell align="right">
+                        {convertNumberToReadableString(row.percent_change_24h)}
                       </TableCell>
                       <TableCell align="right">
                         {convertNumberToReadableString(row.price_btc)}
                       </TableCell>
                       <TableCell align="right">
                         {convertNumberToReadableString(row.market_cap_usd)}
-                      </TableCell>
-                      <TableCell align="right">
-                        {convertNumberToReadableString(row.percent_change_24h)}
-                      </TableCell>
-
-                      <TableCell align="right">
-                        {convertNumberToReadableString(row.percent_change_1h)}
-                      </TableCell>
-                      <TableCell align="right">
-                        {convertNumberToReadableString(row.percent_change_7d)}
-                      </TableCell>
-                      <TableCell align="right">
-                        {convertNumberToReadableString(row.csupply)}
-                      </TableCell>
-                      <TableCell align="right">
-                        {convertNumberToReadableString(row.tsupply)}
-                      </TableCell>
-                      <TableCell align="right">
-                        {convertNumberToReadableString(row.msupply)}
                       </TableCell>
                     </TableRow>
                   );
@@ -234,17 +197,13 @@ export default function EnhancedTable() {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={coinData?.length}
+          count={filteredCoinData?.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      />
     </Box>
   );
 }
