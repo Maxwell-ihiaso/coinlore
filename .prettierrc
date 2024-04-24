@@ -1,0 +1,8 @@
+{
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "printWidth": 100,
+  "bracketSpacing": true,
+  "tabWidth": 2,
+  "ignore": ["**/node_modules/**", "**/next/**", "**/dist/**", "**/out/**"]
+}
