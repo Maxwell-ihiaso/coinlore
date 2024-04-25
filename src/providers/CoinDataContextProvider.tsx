@@ -11,7 +11,8 @@ export interface CoinDataContextProps {
   setFilteredCoinData: React.Dispatch<React.SetStateAction<CoinDataProps[]>>;
   coinInfo: CoinInfoProps;
   setCoinInfo: React.Dispatch<React.SetStateAction<CoinInfoProps>>;
-  setData: (data: CoinDataApiResponse) => void;
+  isFetching: boolean;
+  isLoading: boolean;
 }
 
 export const CoinContextProvider = ({ children }: { children: React.ReactNode }) => {
@@ -19,11 +20,17 @@ export const CoinContextProvider = ({ children }: { children: React.ReactNode })
   const [filteredCoinData, setFilteredCoinData] = React.useState<CoinDataProps[]>([]);
   const [coinInfo, setCoinInfo] = React.useState<CoinInfoProps>({} as CoinInfoProps);
 
-  const setData = (data: CoinDataApiResponse) => {
-    setCoinData(data.data);
-    setFilteredCoinData(data.data);
-    setCoinInfo(data.info);
-  };
+  const { data, isFetching, isLoading } = useFetch<CoinDataApiResponse>(
+    `https://api.coinlore.net/api/tickers/`
+  );
+
+  React.useEffect(() => {
+    if (data && data?.data.length > 0) {
+      setCoinData(data.data);
+      setFilteredCoinData(data.data);
+      setCoinInfo(data.info);
+    }
+  }, [data]);
 
   return (
     <CoinDataProvider
@@ -32,9 +39,10 @@ export const CoinContextProvider = ({ children }: { children: React.ReactNode })
         setCoinData,
         coinInfo,
         setCoinInfo,
-        setData,
         filteredCoinData,
         setFilteredCoinData,
+        isFetching,
+        isLoading,
       }}
     >
       {children}

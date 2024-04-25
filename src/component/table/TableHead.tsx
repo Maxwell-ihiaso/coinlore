@@ -66,14 +66,13 @@ interface EnhancedTableProps {
 
 export default function EnhancedTableHead(props: EnhancedTableProps) {
   const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
-  const theme = useTheme();
   const createSortHandler =
     (property: keyof CoinDataProps) => (event: React.MouseEvent<unknown>) => {
       onRequestSort(event, property);
     };
 
   return (
-    <TableHead>
+    <TableHead >
       <TableRow>
         <TableCell padding="checkbox">
           <Checkbox
@@ -82,7 +81,7 @@ export default function EnhancedTableHead(props: EnhancedTableProps) {
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
             inputProps={{
-              'aria-label': 'select all desserts',
+              'aria-label': 'select all cryptocurrencies',
               style: { borderRadius: '14px' },
             }}
             sx={{

@@ -12,13 +12,12 @@ import Checkbox from '@mui/material/Checkbox';
 import EnhancedTableToolbar from './TableToolbar';
 import EnhancedTableHead, { headCells } from './TableHead';
 import getComparator from '@/utils/getComparator';
-import { CoinDataApiResponse, CoinDataProps } from '@/interface';
+import { CoinDataProps } from '@/interface';
 import convertNumberToReadableString from '@/utils/convertNumToReadableString';
 import { TableRowsLoader } from '../loader/TableLoader';
 import FullWidhtLoader from '../loader/FullWidhtLoader';
 import stableSort from '@/utils/stableSort';
 import { useCoinDataContext } from '@/context/coinDataContext';
-import { useFetch } from '@/hooks/useFetch';
 
 export type Order = 'asc' | 'desc';
 
@@ -27,14 +26,10 @@ export default function EnhancedTable() {
   const [orderBy, setOrderBy] = React.useState<keyof CoinDataProps>('rank');
   const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
+  const [dense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  const { filteredCoinData, setData } = useCoinDataContext();
-
-  const { data, isFetching, isLoading } = useFetch<CoinDataApiResponse>(
-    `https://api.coinlore.net/api/tickers/`
-  );
+  const { filteredCoinData, isLoading, isFetching } = useCoinDataContext();
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof CoinDataProps) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -79,10 +74,6 @@ export default function EnhancedTable() {
     setPage(0);
   };
 
-  const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDense(event.target.checked);
-  };
-
   const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
@@ -97,12 +88,6 @@ export default function EnhancedTable() {
     [filteredCoinData, order, orderBy, page, rowsPerPage]
   );
 
-  React.useEffect(() => {
-    if (data && data?.data.length > 0) {
-      setData?.(data);
-    }
-  }, [data]);
-
   if (isLoading) {
     return <FullWidhtLoader />;
   }
@@ -111,8 +96,9 @@ export default function EnhancedTable() {
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
         <EnhancedTableToolbar numSelected={selected.length} />
-        <TableContainer>
+        <TableContainer sx={{ overflow: 'scroll', maxHeight: 750 }}>
           <Table
+            stickyHeader
             sx={{ minWidth: 750 }}
             aria-labelledby="tableTitle"
             size={dense ? 'small' : 'medium'}
@@ -195,7 +181,7 @@ export default function EnhancedTable() {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[5, 10, 25, 50, 100]}
           component="div"
           count={filteredCoinData?.length}
           rowsPerPage={rowsPerPage}
