@@ -2,7 +2,7 @@
 module.exports = {
   apps: [
     {
-      name: 'next-app',
+      name: 'coinlore',
       script: 'yarn',
       args: 'start',
       cwd: __dirname,
