@@ -3,6 +3,8 @@ FROM node:18-alpine as builder
 
 WORKDIR /app/coinlore
 
+RUN npm install pm2 -g
+
 # Copy package.json and yarn.lock for caching dependencies
 COPY package.json yarn.lock ./
 
@@ -29,5 +31,7 @@ ENV NEXT_PUBLIC_HOST=0.0.0.0
 ENV NEXT_PUBLIC_PORT=8080
 
 # Here we add the command to run the Next.js application with the specified URLs
-CMD ["yarn", "start", "-p", "8080"]
+# CMD ["yarn", "start", "-p", "8080"]
+CMD [ "pm2-runtime", "start","ecosystem.config.js" ]
+
 
